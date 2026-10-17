@@ -1,5 +1,112 @@
 import streamlit as st
 
+from src.ui.base_layout import style_background_dashboard, style_base_layout
+from src.components.header import header_dashboard
+from src.components.footer import footer_dashboard
+
+from src.database.db import check_teacher_exists, create_teacher, teacher_login
+
 
 def teacher_screen():
-    st.header('Teacher Screen')
+     style_base_layout()
+     style_background_dashboard() 
+
+        
+
+     if 'teacher_login_type' not in st.session_state or st.session_state.teacher_login_type == 'login':
+           teacher_screen_login()
+     elif st.session_state.teacher_login_type == "register":
+          teacher_screen_register()   
+
+   
+
+def teacher_screen_login():
+
+        c1,c2 = st.columns(2, vertical_alignment='center', gap='xxlarge' )
+        with c1:
+             header_dashboard()
+        with c2:
+          if  st.button( "Go back to home" , type='secondary', key='loginbackbtn', shortcut= 'alt+h'):
+                    st.session_state['login_type'] = None
+                    st.rerun()
+        st.header("Login using password",text_alignment='center')
+        st.space()
+        st.space()
+        teacher_username =st.text_input("Enter username", placeholder='Username')
+        teacher_pass= st.text_input("Enter password",type='password', placeholder ='Enter password ')
+        st.divider()
+
+        btnc1,btnc2 = st.columns(2)
+
+        with btnc1:
+           if st.button('login', icon=':material/passkey:', shortcut='alt+l', width='stretch'):
+                if teacher_login(teacher_username, teacher_pass):
+                   st.toast("Welcome back!!" , icon="👋")
+                   import time 
+                   time.sleep(2)
+                   st.rerun()
+                else:
+                     st.error("Invalid username and password")   
+
+        with btnc2:
+           if st.button('Register Instead', type = 'primary', icon=':material/passkey:',  width='stretch'):
+                st.session_state.teacher_login_type = 'register'
+                
+               
+        footer_dashboard()
+
+def register_teacher(teacher_username, teacher_name, teacher_pass, teacher_pass_confirm):
+    if not teacher_username or not teacher_name or not teacher_pass:
+      return False, "All Fields are required!"
+    if check_teacher_exists(teacher_username):
+         return False, "Username Already Taken!"
+    if teacher_pass != teacher_pass_confirm:
+         return False , "Password doesn't match"
+
+    try:
+          create_teacher(teacher_username, teacher_pass, teacher_name)
+          return True , "Successfully Created! Login Now"
+    except Exception as e:
+         return False, "Unexpectederror!"
+ 
+def teacher_screen_register():
+         c1,c2 = st.columns(2, vertical_alignment='center', gap='xxlarge' )
+         with c1:
+              header_dashboard()
+         with c2:
+              if  st.button( "Go back to home" , type='secondary', key='registerbackbtn', shortcut= 'alt+h'):
+                    st.session_state['login_type'] = None
+                    st.rerun()
+         st.header("Register your teacher profile")
+         st.space()
+         st.space()
+        
+         teacher_username =st.text_input("Enter username", placeholder='Username')
+         teacher_name =st.text_input("Enter name", placeholder='Kritika')
+
+         teacher_pass= st.text_input("Enter password",type='password', placeholder ='Enter password ')
+         teacher_pass_confirm= st.text_input("Confirm your  password",type='password', placeholder ='Enter password ')
+
+         st.divider()
+
+         btnc1,btnc2 = st.columns(2)
+
+         with btnc1:
+          if  st.button('Register now', icon=':material/passkey:', shortcut='alt+k', width='stretch'):
+               success, message = register_teacher(teacher_username, teacher_name, teacher_pass, teacher_pass_confirm)
+               if success:
+                    st.success(message)
+                    import time
+                    time.sleep(2)
+                    st.session_state.teacher_login_type ="login"
+                    st.rerun()
+               else:
+                    st.error(message)   
+
+
+         with btnc2:
+          if  st.button('Login Instead', type = 'primary', icon=':material/passkey:',  width='stretch'):
+               st.session_state.teacher_login_type='login'
+               
+         footer_dashboard()
+     
