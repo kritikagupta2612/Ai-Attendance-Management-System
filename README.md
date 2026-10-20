@@ -1,3 +1,3 @@
 # projectrepo
-first Git repository
+First Git repository
 Author: Kritika Gupta
