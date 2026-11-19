@@ -15,3 +15,6 @@ supabase
 bcrypt
 pillow
 streamlit
+
+librosa
+resemblyzer
