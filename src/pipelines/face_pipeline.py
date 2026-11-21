@@ -28,7 +28,7 @@ def get_face_embeddings(image_np):
         shape = sp(image_np, face)
         face_descriptors = facerec.compute_face_descriptor(image_np, shape,1) #128 embeddings for each face 
         encodings.append(np.array(face_descriptors))
-        return encodings
+    return encodings
 @st.cache_resource
 def get_trained_model():
         # Load the dlib models
@@ -68,19 +68,6 @@ def train_classifier(): #tab use karenge jab kisi naye student ki entry hogi ya 
         model_data = get_trained_model()
         return bool(model_data)
         
-def predict_face(class_image_np): #array k form me faces lelega 
-        encodings = get_face_embeddings(class_image_np) #group photo se embeddings nikal k dedega ki itne faces hai aur unke embeddings kya hai
-
-        detected_students = {}
-        model_data = get_trained_model()
-        if not model_data:
-            return detected_students, []  , len(encodings)    # ([] => jitne ki students hai unki list hai
-        clf = model_data['clf']
-        X_train = model_data['X']
-        y_train = model_data['y']
-
-        all_students = sorted(list(set(y_train))) #jitne bhi students hai unki list hai
-
        
 def predict_face(class_image_np):
     encodings = get_face_embeddings(class_image_np)
